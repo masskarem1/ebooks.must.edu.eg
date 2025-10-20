@@ -1,299 +1,466 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>MUST Ebook Library</title>
-  
+
+  <!-- Bootstrap (CSS only) -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  
+
+  <!-- Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
   <style>
-    body { 
-      background-color: #f4f7f6; 
-      /* Add perspective to the whole container for a subtle 3D tilt */
-      perspective: 1000px;
+    :root{
+      --bg-page: #f4f7f6;
+      --card-overlay: rgba(0,0,0,0.45);
+      --muted: #6c757d;
+      --accent-green: #90ee90;
+      --text-dark: #0f172a;
+      --header-grad-from: #3b82f6;
+      --header-grad-to: #4f46e5;
     }
+
+    /* DARK MODE VARIABLES */
+    .dark-mode {
+      --bg-page: #0b1220;
+      --card-overlay: rgba(0,0,0,0.35);
+      --muted: #9aa4b2;
+      --accent-green: #7fe38b;
+      --text-dark: #e6eef6;
+      --header-grad-from: #0f172a;
+      --header-grad-to: #0b2540;
+    }
+
+    html,body{
+      height:100%;
+      margin:0;
+      font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg, var(--bg-page), #ffffff 60%);
+      color: var(--text-dark);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    header.topbar {
+      background: linear-gradient(135deg, var(--header-grad-from), var(--header-grad-to));
+      color: #fff;
+      padding: 36px 20px;
+      border-radius: 0 0 48% 48% / 8%;
+      box-shadow: 0 6px 20px rgba(16,24,40,0.12);
+      position: relative;
+    }
+
+    .topbar .container {
+      display:flex;
+      gap: 12px;
+      align-items:center;
+      justify-content: space-between;
+      flex-wrap:wrap;
+    }
+
+    .brand {
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
+    .brand .logo {
+      width:56px;
+      height:56px;
+      border-radius:10px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      background: rgba(255,255,255,0.12);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+      font-weight:700;
+      font-size:1.2rem;
+    }
+    .brand h1 {
+      margin:0;
+      font-size:1.5rem;
+      font-weight:700;
+      letter-spacing:0.3px;
+    }
+    .brand p { margin:0; font-size:0.95rem; opacity:0.95; }
+
+    /* Dark mode toggle */
+    .toggle-wrap { display:flex; align-items:center; gap:10px; }
+    .theme-toggle {
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      background: rgba(255,255,255,0.08);
+      padding:6px 10px;
+      border-radius:999px;
+      color:#fff;
+      cursor:pointer;
+      user-select:none;
+    }
+    .theme-toggle .fa-moon, .theme-toggle .fa-sun { width:18px; text-align:center; }
+
+    /* Cards grid */
+    .cards-section { margin-top:32px; margin-bottom:60px; }
     .card-box {
-      position: relative;
-      overflow: hidden;
-      border-radius: 12px;
-      /* Original shadow: box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); */
-      /* NEW enhanced shadow for depth */
-      box-shadow: 0 5px 10px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.1);
-      min-height: 280px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 20px;
-      margin-bottom: 30px; 
-      /* NEW transition for the 3D effect */
-      transition: transform 0.3s ease, box-shadow 0.3s ease; 
+      position:relative;
+      overflow:hidden;
+      border-radius:14px;
+      min-height:260px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:22px;
+      color:#fff;
+      transition: transform 0.35s ease, box-shadow 0.35s ease;
+      transform-style:preserve-3d;
+      box-shadow: 0 6px 14px rgba(2,6,23,0.08);
+      background-clip: padding-box;
     }
-    .bg-img {
-      background-size: cover;
-      background-position: center center;
-      transition: transform 0.4s ease;
+
+    .card-box .overlay {
+      position:absolute;
+      inset:0;
+      background:var(--card-overlay);
+      z-index:1;
+      transition: background 0.3s ease;
     }
-    
-    /* NEW 3D hover effect on the card itself */
+    .card-box .content {
+      position:relative;
+      z-index:2;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      padding:10px;
+    }
+    .card-box .icon-logo {
+      font-size:2.8rem;
+      text-shadow:0 6px 18px rgba(0,0,0,0.25);
+    }
+    .card-box .title {
+      font-weight:700;
+      font-size:clamp(0.95rem, 1.6vw, 1.2rem);
+      text-transform:uppercase;
+      letter-spacing:0.6px;
+    }
+    .card-box .link {
+      color: var(--accent-green);
+      font-weight:700;
+      text-decoration:none;
+      margin-top:6px;
+    }
     .card-box:hover {
-        /* Lifts the card up and scales it */
-        transform: translateY(-10px) scale(1.03); 
-        /* Deeper shadow to enhance the 3D "lift" */
-        box-shadow: 0 12px 24px rgba(0,0,0,0.2), 0 8px 12px rgba(0,0,0,0.15);
+      transform: translateY(-12px) rotateY(4deg) rotateX(2deg) scale(1.03);
+      box-shadow: 0 18px 40px rgba(2,6,23,0.18);
     }
 
-    /* Make the background image zoom a bit more on hover */
-    .card-box:hover .bg-img {
-      transform: scale(1.1);
+    /* Gradients for colleges (kept accessible) */
+    .bg-basic       { background: linear-gradient(135deg,#3b82f6,#6366f1); }
+    .bg-medicine    { background: linear-gradient(135deg,#22c55e,#16a34a); }
+    .bg-dentistry   { background: linear-gradient(135deg,#2563eb,#1e40af); }
+    .bg-therapy     { background: linear-gradient(135deg,#0ea5e9,#0284c7); }
+    .bg-pharmacy    { background: linear-gradient(135deg,#ef4444,#b91c1c); }
+    .bg-engineering { background: linear-gradient(135deg,#f97316,#c2410c); }
+    .bg-it          { background: linear-gradient(135deg,#374151,#1f2937); }
+    .bg-bio         { background: linear-gradient(135deg,#10b981,#059669); }
+    .bg-health      { background: linear-gradient(135deg,#facc15,#eab308); color:#000; }
+    .bg-nursing     { background: linear-gradient(135deg,#8b5cf6,#6d28d9); }
+    .bg-media       { background: linear-gradient(135deg,#ec4899,#db2777); }
+    .bg-business    { background: linear-gradient(135deg,#4f46e5,#4338ca); }
+    .bg-language    { background: linear-gradient(135deg,#16a34a,#15803d); }
+    .bg-special     { background: linear-gradient(135deg,#2563eb,#1d4ed8); }
+    .bg-archeology  { background: linear-gradient(135deg,#f97316,#c2410c); }
+
+    /* Equal heights via flex */
+    .row-cols-custom { display: grid; gap:20px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+
+    /* Footer */
+    footer.site-footer {
+      padding:22px 16px;
+      text-align:center;
+      color:var(--muted);
+      background: transparent;
     }
 
-    .overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 50, 110, 0.7); /* Blue overlay */
-      z-index: 1;
-    }
-    .content {
-      position: relative;
-      z-index: 2;
-      color: #ffffff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-    }
-    .content .title {
-      font-family: 'Arial', sans-serif;
-      font-weight: 700;
-      font-size: 1.25rem;
-      line-height: 1.4;
-      color: #ffffff !important;
-      text-transform: uppercase;
-      margin-top: 10px; 
-    }
-    .content .btn {
-      color: #90ee90; /* Light green */
-      text-decoration: none;
-      font-weight: bold;
-      margin-top: 15px;
-      font-size: 1rem;
-      transition: color 0.3s;
-    }
-    .content .btn:hover {
-      color: #ffffff;
-    }
-    
-    /* Logo Styling (Unchanged) */
-    .card-logo {
-      width: 80px;
-      height: 80px;
-      object-fit: contain;
-      margin-bottom: 10px;
-      filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
-    }
-    .text-logo {
-        font-size: 3rem;
-        font-weight: bold;
-        color: white;
-        text-shadow: 0 0 8px rgba(0,0,0,0.6);
-        margin-bottom: 10px;
-    }
-    .icon-logo { 
-        font-size: 3rem;
-        color: white;
-        text-shadow: 0 0 8px rgba(0,0,0,0.6);
-        margin-bottom: 10px;
+    /* Accessibility focus */
+    a:focus, button:focus { outline: 3px solid rgba(79,70,229,0.18); outline-offset:3px; border-radius:8px; }
+
+    /* Responsive adjustments */
+    @media (max-width: 576px){
+      .brand h1{ font-size:1.05rem; }
+      .brand p{ display:none; }
+      header.topbar { padding:20px 14px; border-radius: 0 0 36% 36% / 10%;}
     }
   </style>
-  </head>
-
+</head>
 <body>
-
-  <div class="container my-5">
-    <div class="row text-center mb-4">
-      <div class="col">
-        <h1 class="display-5 fw-bold">MUST Ebook Library</h1>
-        <p class="lead">Select a center or faculty to browse available ebooks.</p>
-      </div>
-    </div>
-
-    <div class="row justify-content-center">
-      
-      <div class="col-lg-3 col-md-4">
-        <div class="card-box bg-img" style="background-image: url('https://via.placeholder.com/600x400/6f42c1/ffffff?text=Basic+Science+Bg')">
-          <div class="overlay"></div>
-          <div class="content">
-            <i class="fas fa-flask icon-logo"></i> 
-            <h2 class="title">Center of Basic Sciences</h2>
-            <a href="basic-science.html" class="btn">See Ebooks</a>
-          </div>
+  <header class="topbar" role="banner">
+    <div class="container">
+      <div class="brand" aria-hidden="false">
+        <div class="logo" aria-hidden="true"><i class="fas fa-book"></i></div>
+        <div>
+          <h1>MUST Ebook Library</h1>
+          <p class="mb-0">Select a college or center to browse available ebooks</p>
         </div>
       </div>
-      
-      <div class="col-lg-3 col-md-4">
-        <div class="card-box bg-img" style="background-image: url('https://via.placeholder.com/600x400/28a745/ffffff?text=Medicine+Bg')">
+
+      <div class="toggle-wrap" aria-hidden="false">
+        <div id="themeToggle" class="theme-toggle" role="button" tabindex="0" aria-pressed="false" aria-label="Toggle dark mode">
+          <i id="themeIcon" class="fas fa-moon"></i>
+          <span id="themeLabel">Dark mode</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container cards-section" role="main" aria-labelledby="main-title">
+    <h2 id="main-title" class="visually-hidden">Colleges and Centers</h2>
+
+    <div class="row row-cols-custom" role="list">
+      <!-- Center of Basic Sciences -->
+      <div role="listitem">
+        <a href="basic-science.html" class="card-box bg-basic" aria-label="Center of Basic Sciences — See Ebooks">
+          <div class="overlay" aria-hidden="true"></div>
+          <div class="content">
+            <i class="fas fa-flask icon-logo" aria-hidden="true"></i>
+            <div class="title">Center of Basic Sciences</div>
+            <div class="link">See Ebooks →</div>
+          </div>
+        </a>
+      </div>
+
+      <!-- College of Medicine -->
+      <div role="listitem">
+        <a href="medicine.html" class="card-box bg-medicine" aria-label="College of Medicine — See Ebooks">
           <div class="overlay"></div>
           <div class="content">
             <i class="fas fa-user-md icon-logo"></i>
-            <h2 class="title">College of Medicine</h2>
-            <a href="medicine.html" class="btn">See Ebooks</a>
+            <div class="title">College of Medicine</div>
+            <div class="link">See Ebooks →</div>
           </div>
-        </div>
+        </a>
       </div>
-      
-      <div class="col-lg-3 col-md-4">
-        <div class="card-box bg-img" style="background-image: url('https://via.placeholder.com/600x400/007bff/ffffff?text=Dentistry+Bg')">
+
+      <!-- College of Oral and Dental Surgery -->
+      <div role="listitem">
+        <a href="dentistry.html" class="card-box bg-dentistry" aria-label="College of Oral and Dental Surgery — See Ebooks">
           <div class="overlay"></div>
           <div class="content">
             <i class="fas fa-tooth icon-logo"></i>
-            <h2 class="title">College of Oral and Dental Surgery</h2>
-            <a href="dentistry.html" class="btn">See Ebooks</a>
+            <div class="title">College of Oral & Dental Surgery</div>
+            <div class="link">See Ebooks →</div>
           </div>
-        </div>
+        </a>
       </div>
 
-      <div class="col-lg-3 col-md-4">
-        <div class="card-box bg-img" style="background-image: url('https://via.placeholder.com/600x400/17a2b8/ffffff?text=Physical+Therapy+Bg')">
+      <!-- College of Physical Therapy -->
+      <div role="listitem">
+        <a href="physical-therapy.html" class="card-box bg-therapy" aria-label="College of Physical Therapy — See Ebooks">
           <div class="overlay"></div>
           <div class="content">
             <i class="fas fa-running icon-logo"></i>
-            <h2 class="title">College of Physical Therapy</h2>
-            <a href="physical-therapy.html" class="btn">See Ebooks</a>
+            <div class="title">College of Physical Therapy</div>
+            <div class="link">See Ebooks →</div>
           </div>
-        </div>
+        </a>
       </div>
-      
-      <div class="col-lg-3 col-md-4">
-        <div class="card-box bg-img" style="background-image: url('https://via.placeholder.com/600x400/dc3545/ffffff?text=Pharmacy+Bg')">
+
+      <!-- College of Pharmaceutical Sciences & Drug Manufacturing -->
+      <div role="listitem">
+        <a href="pharmacy.html" class="card-box bg-pharmacy" aria-label="College of Pharmaceutical Sciences and Drug Manufacturing — See Ebooks">
           <div class="overlay"></div>
           <div class="content">
             <i class="fas fa-pills icon-logo"></i>
-            <h2 class="title">College of Pharmaceutical Sciences and Drug Manufacturing</h2>
-            <a href="pharmacy.html" class="btn">See Ebooks</a>
+            <div class="title">Pharmaceutical Sciences & Drug Manufacturing</div>
+            <div class="link">See Ebooks →</div>
           </div>
-        </div>
+        </a>
       </div>
-      
-      <div class="col-lg-3 col-md-4">
-        <div class="card-box bg-img" style="background-image: url('https://via.placeholder.com/600x400/fd7e14/ffffff?text=Engineering+Bg')">
+
+      <!-- College of Engineering Sciences and Technology -->
+      <div role="listitem">
+        <a href="engineering.html" class="card-box bg-engineering" aria-label="College of Engineering Sciences and Technology — See Ebooks">
           <div class="overlay"></div>
           <div class="content">
             <i class="fas fa-hard-hat icon-logo"></i>
-            <h2 class="title">College of Engineering Sciences and Technology</h2>
-            <a href="engineering.html" class="btn">See Ebooks</a>
+            <div class="title">Engineering Sciences & Technology</div>
+            <div class="link">See Ebooks →</div>
           </div>
-        </div>
+        </a>
       </div>
-      
-      <div class="col-lg-3 col-md-4">
-        <div class="card-box bg-img" style="background-image: url('https://via.placeholder.com/600x400/343a40/ffffff?text=IT+Bg')">
+
+      <!-- College of Information Technology -->
+      <div role="listitem">
+        <a href="it.html" class="card-box bg-it" aria-label="College of Information Technology — See Ebooks">
           <div class="overlay"></div>
           <div class="content">
             <i class="fas fa-laptop-code icon-logo"></i>
-            <h2 class="title">College of Information Technology</h2>
-            <a href="it.html" class="btn">See Ebooks</a>
+            <div class="title">Information Technology</div>
+            <div class="link">See Ebooks →</div>
           </div>
-        </div>
+        </a>
       </div>
-      
-      <div class="col-lg-3 col-md-4">
-        <div class="card-box bg-img" style="background-image: url('https://via.placeholder.com/600x400/20c997/ffffff?text=Biotechnology+Bg')">
+
+      <!-- College of Biotechnology -->
+      <div role="listitem">
+        <a href="biotechnology.html" class="card-box bg-bio" aria-label="College of Biotechnology — See Ebooks">
           <div class="overlay"></div>
           <div class="content">
             <i class="fas fa-dna icon-logo"></i>
-            <h2 class="title">College of Biotechnology</h2>
-            <a href="biotechnology.html" class="btn">See Ebooks</a>
+            <div class="title">Biotechnology</div>
+            <div class="link">See Ebooks →</div>
           </div>
-        </div>
+        </a>
       </div>
 
-      <div class="col-lg-3 col-md-4">
-        <div class="card-box bg-img" style="background-image: url('https://via.placeholder.com/600x400/ffc107/000000?text=Applied+Health+Bg')">
+      <!-- College of Applied Health Science Technology -->
+      <div role="listitem">
+        <a href="applied-health.html" class="card-box bg-health" aria-label="College of Applied Health Science Technology — See Ebooks">
           <div class="overlay"></div>
           <div class="content">
             <i class="fas fa-medkit icon-logo"></i>
-            <h2 class="title">College of Applied Health Science Technology</h2>
-            <a href="applied-health.html" class="btn">See Ebooks</a>
+            <div class="title">Applied Health Science Technology</div>
+            <div class="link">See Ebooks →</div>
           </div>
-        </div>
+        </a>
       </div>
-      
-      <div class="col-lg-3 col-md-4">
-        <div class="card-box bg-img" style="background-image: url('https://via.placeholder.com/600x400/6610f2/ffffff?text=Nursing+Bg')">
+
+      <!-- College of Nursing -->
+      <div role="listitem">
+        <a href="nursing.html" class="card-box bg-nursing" aria-label="College of Nursing — See Ebooks">
           <div class="overlay"></div>
           <div class="content">
             <i class="fas fa-hospital-user icon-logo"></i>
-            <h2 class="title">College of Nursing</h2>
-            <a href="nursing.html" class="btn">See Ebooks</a>
+            <div class="title">College of Nursing</div>
+            <div class="link">See Ebooks →</div>
           </div>
-        </div>
+        </a>
       </div>
 
-      <div class="col-lg-3 col-md-4">
-        <div class="card-box bg-img" style="background-image: url('https://via.placeholder.com/600x400/e83e8c/ffffff?text=Mass+Media+Bg')">
+      <!-- College of Mass Media and Communication Technology -->
+      <div role="listitem">
+        <a href="mass-media.html" class="card-box bg-media" aria-label="College of Mass Media and Communication Technology — See Ebooks">
           <div class="overlay"></div>
           <div class="content">
             <i class="fas fa-bullhorn icon-logo"></i>
-            <h2 class="title">College of Mass Media and Communication Technology</h2>
-            <a href="mass-media.html" class="btn">See Ebooks</a>
+            <div class="title">Mass Media & Communication Technology</div>
+            <div class="link">See Ebooks →</div>
           </div>
-        </div>
+        </a>
       </div>
-      
-      <div class="col-lg-3 col-md-4">
-        <div class="card-box bg-img" style="background-image: url('https://via.placeholder.com/600x400/6f42c1/ffffff?text=Business+Bg')">
+
+      <!-- College of Business Administration, Economics and Information Systems -->
+      <div role="listitem">
+        <a href="business.html" class="card-box bg-business" aria-label="College of Business Administration, Economics and Information Systems — See Ebooks">
           <div class="overlay"></div>
           <div class="content">
             <i class="fas fa-chart-line icon-logo"></i>
-            <h2 class="title">College of Business Administration, Economics and Information Systems</h2>
-            <a href="business.html" class="btn">See Ebooks</a>
+            <div class="title">Business Administration, Economics & IS</div>
+            <div class="link">See Ebooks →</div>
           </div>
-        </div>
+        </a>
       </div>
 
-      <div class="col-lg-3 col-md-4">
-        <div class="card-box bg-img" style="background-image: url('https://via.placeholder.com/600x400/28a745/ffffff?text=Languages+Bg')">
+      <!-- College of Foreign Languages and Translation -->
+      <div role="listitem">
+        <a href="languages.html" class="card-box bg-language" aria-label="College of Foreign Languages and Translation — See Ebooks">
           <div class="overlay"></div>
           <div class="content">
             <i class="fas fa-globe icon-logo"></i>
-            <h2 class="title">College of Foreign Languages and Translation</h2>
-            <a href="languages.html" class="btn">See Ebooks</a>
+            <div class="title">Foreign Languages & Translation</div>
+            <div class="link">See Ebooks →</div>
           </div>
-        </div>
+        </a>
       </div>
-      
-      <div class="col-lg-3 col-md-4">
-        <div class="card-box bg-img" style="background-image: url('https://via.placeholder.com/600x400/007bff/ffffff?text=Special+Ed+Bg')">
+
+      <!-- College of Special Education -->
+      <div role="listitem">
+        <a href="special-education.html" class="card-box bg-special" aria-label="College of Special Education — See Ebooks">
           <div class="overlay"></div>
           <div class="content">
             <i class="fas fa-chalkboard-teacher icon-logo"></i>
-            <h2 class="title">College of Special Education</h2>
-            <a href="special-education.html" class="btn">See Ebooks</a>
+            <div class="title">Special Education</div>
+            <div class="link">See Ebooks →</div>
           </div>
-        </div>
+        </a>
       </div>
 
-      <div class="col-lg-3 col-md-4">
-        <div class="card-box bg-img" style="background-image: url('https://via.placeholder.com/600x400/fd7e14/ffffff?text=Archeology+Bg')">
+      <!-- College of Archeology and Tourism Guidance -->
+      <div role="listitem">
+        <a href="archeology.html" class="card-box bg-archeology" aria-label="College of Archeology and Tourism Guidance — See Ebooks">
           <div class="overlay"></div>
           <div class="content">
             <i class="fas fa-archway icon-logo"></i>
-            <h2 class="title">College of Archeology and Tourism Guidance</h2>
-            <a href="archeology.html" class="btn">See Ebooks</a>
+            <div class="title">Archeology & Tourism Guidance</div>
+            <div class="link">See Ebooks →</div>
           </div>
-        </div>
+        </a>
       </div>
-      
     </div>
-  </div>
+  </main>
 
+  <footer class="site-footer">
+    <div class="container">
+      <small>© 2025 MUST Ebook Library — All Rights Reserved</small>
+    </div>
+  </footer>
+
+  <!-- Bootstrap JS (optional for any bootstrap components you might add) -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Theme toggle script -->
+  <script>
+    (function () {
+      const body = document.body;
+      const toggle = document.getElementById('themeToggle');
+      const icon = document.getElementById('themeIcon');
+      const label = document.getElementById('themeLabel');
+
+      // Apply saved preference
+      const saved = localStorage.getItem('muste-books-theme');
+      if (saved === 'dark') {
+        body.classList.add('dark-mode');
+        icon.className = 'fas fa-sun';
+        label.textContent = 'Light mode';
+        toggle.setAttribute('aria-pressed','true');
+      } else {
+        icon.className = 'fas fa-moon';
+        label.textContent = 'Dark mode';
+        toggle.setAttribute('aria-pressed','false');
+      }
+
+      // Toggle handler
+      function toggleTheme() {
+        const isDark = body.classList.toggle('dark-mode');
+        if (isDark) {
+          localStorage.setItem('muste-books-theme','dark');
+          icon.className = 'fas fa-sun';
+          label.textContent = 'Light mode';
+          toggle.setAttribute('aria-pressed','true');
+        } else {
+          localStorage.setItem('muste-books-theme','light');
+          icon.className = 'fas fa-moon';
+          label.textContent = 'Dark mode';
+          toggle.setAttribute('aria-pressed','false');
+        }
+      }
+
+      // Events
+      toggle.addEventListener('click', toggleTheme);
+      toggle.addEventListener('keypress', function(e){
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleTheme();
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
